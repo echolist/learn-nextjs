@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model comments {
+  id         Int              @id @default(autoincrement())
+  user_id    Int?
+  subject    String?          @db.VarChar(255)
+  message    String?          @db.VarChar(1024)
+  status     comments_status?
+  is_deleted Boolean?         @default(false)
+  post_date  DateTime?        @db.DateTime(0)
+  users      users?           @relation(fields: [user_id], references: [user_id], map: "comments_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+}
+
+model users {
+  user_id      Int        @id @default(autoincrement())
+  email        String?    @unique(map: "email") @db.Char(32)
+  first_name   String?    @db.VarChar(255)
+  last_name    String?    @db.VarChar(255)
+  address      String?    @db.VarChar(255)
+  last_comment DateTime?  @db.DateTime(0)
+  comments     comments[]
+}
+
+enum comments_status {
+  public
+  private
+}
